@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTM Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+  <h1>📦 TTM Generator</h1>
+
+  <!-- FORM INPUT -->
+  <div class="form-container">
+    <label>Divisi Tujuan:</label>
+    <input type="text" id="divisi" placeholder="Masukkan divisi tujuan">
+
+    <label>Notes (opsional):</label>
+    <textarea id="notes" placeholder="Catatan tambahan"></textarea>
+
+    <h3>➕ Input Barang</h3>
+    <div class="barang-form">
+      <input type="text" id="namaBarang" placeholder="Nama Barang">
+      <input type="number" id="qty" placeholder="Qty">
+      <select id="satuan">
+        <option value="pcs">pcs</option>
+        <option value="koli">koli</option>
+      </select>
+      <input type="text" id="keterangan" placeholder="Keterangan">
+      <button class="btn-primary" onclick="tambahBarang()">Tambah Barang</button>
+    </div>
+
+    <table id="tabel-barang">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Barang</th>
+          <th>Qty</th>
+          <th>Satuan</th>
+          <th>Keterangan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="form-actions">
+      <button class="btn-success" onclick="generateTTM()">Generate TTM</button>
+      <button class="btn-warning" onclick="lihatRiwayat()">Riwayat TTM</button>
+    </div>
+
+    <!-- Import Export JSON -->
+    <div class="file-actions">
+      <button class="btn-primary" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <input type="file" id="importFile" accept=".json" style="display:none;">
+      <button id="exportBtn" class="btn-success">Export JSON</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview" class="hidden">
+    <div class="print-header">
+      <div class="logo">
+        <img src="https://i.imgur.com/8nbxERj.jpeg" alt="Logo">
+      </div>
+      <div class="title">
+        <h2>Bukti Tanda Terima</h2>
+        <div id="ttm-number"></div>
+        <svg id="barcode"></svg>
+      </div>
+      <div class="date" id="print-date"></div>
+    </div>
+
+    <p><strong>Divisi Tujuan:</strong> <span id="preview-divisi"></span></p>
+    <p><strong>Notes:</strong> <span id="preview-notes"></span></p>
+
+    <table id="preview-tabel">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Barang</th>
+          <th>Qty</th>
+          <th>Satuan</th>
+          <th>Keterangan</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="signature">
+      <div>Pengirim<br><br><br>___________________</div>
+      <div>Penerima<br><br><br>___________________</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-success" onclick="kirimTTM()">Kirim</button>
+      <button class="btn-warning" onclick="window.print()">Print</button>
+      <button class="btn-danger" onclick="closePreview()">Tutup</button>
+    </div>
+  </div>
+
+  <!-- RIWAYAT -->
+  <div id="riwayat" class="hidden">
+    <h2>📑 Riwayat TTM</h2>
+    <table id="tabel-riwayat">
+      <thead>
+        <tr>
+          <th>No TTM</th>
+          <th>Divisi</th>
+          <th>Tanggal</th>
+          <th>Detail</th>
+          <th>Bukti</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="actions">
+      <button class="btn-danger" onclick="closeRiwayat()">Tutup</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
