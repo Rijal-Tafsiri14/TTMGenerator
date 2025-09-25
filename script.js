@@ -104,8 +104,12 @@ function lihatRiwayat() {
         <td>${r.date}</td>
         <td><button class="btn-primary" onclick="lihatDetail(${i})">Lihat</button></td>
         <td>
-          ${r.foto ? `<img src="${r.foto}" width="50">` :
-          `<input type="file" accept="image/*" onchange="uploadFoto(${i}, this)">`}
+         ${r.foto 
+  ? `<div>
+       <img src="${r.foto}" width="50"><br>
+       <button class="btn-warning" onclick="gantiFoto(${i})">Ganti Foto</button>
+     </div>`
+  : `<input type="file" accept="image/*" onchange="uploadFoto(${i}, this)">`}
         </td>
         <td><button class="btn-danger" onclick="hapusRiwayat(${i})">Hapus</button></td>
       </tr>`;
@@ -208,6 +212,14 @@ document.getElementById("importFile").addEventListener("change", (event) => {
   };
   reader.readAsText(file);
 });
+
+function gantiFoto(index) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = () => uploadFoto(index, input);
+  input.click(); // otomatis buka dialog file
+}
 
 
 
