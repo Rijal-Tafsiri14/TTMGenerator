@@ -192,55 +192,36 @@ document.getElementById("exportBtn").addEventListener("click", () => {
 
   window.URL.revokeObjectURL(url);
 });
-// IMPORT CSV
-document.getElementById("importFile").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
+// EXPORT CSV (dengan foto base64)
+document.getElementById("exportBtn").addEventListener("click", () => {
+  if (!riwayat || riwayat.length === 0) {
+    alert("Tidak ada data untuk diexport!");
+    return;
+  }
 
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const text = ev.target.result;
-      const rows = text.split("\n").filter(r => r.trim() !== "");
-      // hapus header
-      rows.shift();
+  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan,Foto\n";
 
-      const newRiwayat = [];
+  riwayat.forEach(r => {
+    r.barangList.forEach(b => {
+      csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes}","${b.nama}","${b.qty}","${b.satuan}","${b.ket}","${r.foto ? r.foto : ""}"\n`;
+    });
+  });
 
-      rows.forEach(row => {
-        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => 
-          c.replace(/^"|"$/g, "").replace(/""/g, '"') // unescape
-        );
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
 
-        if (cols.length >= 8) {
-          const [ttmNumber, divisi, date, notes, nama, qty, satuan, ket] = cols;
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = "riwayatTTM_with_foto.csv";
 
-          // cari TTM sudah ada atau belum
-          let existing = newRiwayat.find(r => r.ttmNumber === ttmNumber);
-          if (!existing) {
-            existing = { ttmNumber, divisi, date, notes, barangList: [] };
-            newRiwayat.push(existing);
-          }
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
-          existing.barangList.push({ nama, qty, satuan, ket });
-        }
-      });
-
-      if (newRiwayat.length > 0) {
-        riwayat = newRiwayat;
-        localStorage.setItem("riwayatTTM", JSON.stringify(riwayat));
-        alert("Import CSV berhasil! Silakan buka Riwayat.");
-      } else {
-        alert("File CSV kosong atau format salah.");
-      }
-    } catch (err) {
-      console.error("Import error:", err);
-      alert("Gagal membaca CSV.");
-    }
-  };
-
-  reader.readAsText(file);
+  window.URL.revokeObjectURL(url);
 });
+
 
 
 
