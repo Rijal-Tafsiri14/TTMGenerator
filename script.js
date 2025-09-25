@@ -201,27 +201,57 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   }
 });
 
-// IMPORT JSON
+// IMPORT CSV
 document.getElementById("importFile").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      const data = JSON.parse(ev.target.result);
-      if (Array.isArray(data)) {
-        riwayat = data;
+      const text = ev.target.result;
+      const rows = text.split("\n").filter(r => r.trim() !== "");
+      // hapus header
+      rows.shift();
+
+      const newRiwayat = [];
+
+      rows.forEach(row => {
+        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => 
+          c.replace(/^"|"$/g, "").replace(/""/g, '"') // unescape
+        );
+
+        if (cols.length >= 8) {
+          const [ttmNumber, divisi, date, notes, nama, qty, satuan, ket] = cols;
+
+          // cari TTM sudah ada atau belum
+          let existing = newRiwayat.find(r => r.ttmNumber === ttmNumber);
+          if (!existing) {
+            existing = { ttmNumber, divisi, date, notes, barangList: [] };
+            newRiwayat.push(existing);
+          }
+
+          existing.barangList.push({ nama, qty, satuan, ket });
+        }
+      });
+
+      if (newRiwayat.length > 0) {
+        riwayat = newRiwayat;
         localStorage.setItem("riwayatTTM", JSON.stringify(riwayat));
-        alert("Import berhasil! Silakan buka Riwayat.");
+        alert("Import CSV berhasil! Silakan buka Riwayat.");
       } else {
-        alert("Format file tidak valid.");
+        alert("File CSV kosong atau format salah.");
       }
     } catch (err) {
-      alert("Gagal membaca file.");
+      console.error("Import error:", err);
+      alert("Gagal membaca CSV.");
     }
   };
+
   reader.readAsText(file);
 });
+
+
 
 
 
