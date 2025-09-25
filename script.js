@@ -163,57 +163,21 @@ function hapusRiwayat(index) {
     lihatRiwayat();
   }
 }
-// EXPORT CSV (dengan foto base64)
+// EXPORT JSON (dengan foto base64)
 document.getElementById("exportBtn").addEventListener("click", () => {
   if (!riwayat || riwayat.length === 0) {
     alert("Tidak ada data untuk diexport!");
     return;
   }
 
-  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan,Foto\n";
-
-  riwayat.forEach(r => {
-    r.barangList.forEach(b => {
-      csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes}","${b.nama}","${b.qty}","${b.satuan}","${b.ket}","${r.foto ? r.foto : ""}"\n`;
-    });
-  });
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const dataStr = JSON.stringify(riwayat, null, 2); // pretty JSON
+  const blob = new Blob([dataStr], { type: "application/json" });
   const url = window.URL.createObjectURL(blob);
 
   const a = document.createElement("a");
   a.style.display = "none";
   a.href = url;
-  a.download = "riwayatTTM_with_foto.csv";
-
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  window.URL.revokeObjectURL(url);
-});
-// EXPORT CSV (dengan foto base64)
-document.getElementById("exportBtn").addEventListener("click", () => {
-  if (!riwayat || riwayat.length === 0) {
-    alert("Tidak ada data untuk diexport!");
-    return;
-  }
-
-  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan,Foto\n";
-
-  riwayat.forEach(r => {
-    r.barangList.forEach(b => {
-      csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes}","${b.nama}","${b.qty}","${b.satuan}","${b.ket}","${r.foto ? r.foto : ""}"\n`;
-    });
-  });
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.style.display = "none";
-  a.href = url;
-  a.download = "riwayatTTM_with_foto.csv";
+  a.download = "riwayatTTM.json";
 
   document.body.appendChild(a);
   a.click();
@@ -222,7 +186,28 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   window.URL.revokeObjectURL(url);
 });
 
+// IMPORT JSON (dengan foto base64)
+document.getElementById("importFile").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+
+      // ganti riwayat lama dengan data baru
+      riwayat = imported;
+      localStorage.setItem("riwayatTTM", JSON.stringify(riwayat));
+
+      alert("Riwayat berhasil diimport (termasuk foto).");
+      lihatRiwayat(); // render ulang riwayat
+    } catch (err) {
+      alert("Gagal import JSON: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
 
 
 
