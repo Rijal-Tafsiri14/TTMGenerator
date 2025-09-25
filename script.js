@@ -163,44 +163,35 @@ function hapusRiwayat(index) {
     lihatRiwayat();
   }
 }
-// EXPORT CSV
+// EXPORT CSV (dengan foto base64)
 document.getElementById("exportBtn").addEventListener("click", () => {
-  try {
-    if (!riwayat || riwayat.length === 0) {
-      alert("Tidak ada data untuk diexport!");
-      return;
-    }
-
-    // Buat header CSV
-    let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan\n";
-
-    // Loop isi riwayat
-    riwayat.forEach(r => {
-      r.barangList.forEach(b => {
-        csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes || ""}","${b.nama}",${b.qty},${b.satuan},"${b.ket}"\n`;
-      });
-    });
-
-    // Buat file CSV
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = url;
-    a.download = "riwayatTTM.csv"; // Excel bisa buka langsung
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Export error:", err);
-    alert("Export gagal, cek console!");
+  if (!riwayat || riwayat.length === 0) {
+    alert("Tidak ada data untuk diexport!");
+    return;
   }
-});
 
+  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan,Foto\n";
+
+  riwayat.forEach(r => {
+    r.barangList.forEach(b => {
+      csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes}","${b.nama}","${b.qty}","${b.satuan}","${b.ket}","${r.foto ? r.foto : ""}"\n`;
+    });
+  });
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = "riwayatTTM_with_foto.csv";
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  window.URL.revokeObjectURL(url);
+});
 // IMPORT CSV
 document.getElementById("importFile").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -250,6 +241,7 @@ document.getElementById("importFile").addEventListener("change", e => {
 
   reader.readAsText(file);
 });
+
 
 
 
