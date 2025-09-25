@@ -163,39 +163,37 @@ function hapusRiwayat(index) {
     lihatRiwayat();
   }
 }
-// EXPORT JSON
-// EXPORT XLSX
+// EXPORT CSV
 document.getElementById("exportBtn").addEventListener("click", () => {
   if (!riwayat || riwayat.length === 0) {
     alert("Tidak ada data untuk diexport!");
     return;
   }
 
-  // ubah data ke array of objects
-  let data = [];
+  // buat header
+  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan\n";
+
+  // loop data riwayat
   riwayat.forEach(r => {
     r.barangList.forEach(b => {
-      data.push({
-        No_TTM: r.ttmNumber,
-        Divisi: r.divisi,
-        Tanggal: r.date,
-        Notes: r.notes || "",
-        Nama_Barang: b.nama,
-        Qty: b.qty,
-        Satuan: b.satuan,
-        Keterangan: b.ket
-      });
+      csvContent += `${r.ttmNumber},${r.divisi},${r.date},${r.notes || ""},${b.nama},${b.qty},${b.satuan},${b.ket}\n`;
     });
   });
 
-  // buat worksheet
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
+  // buat file CSV
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
 
-  // simpan file
-  XLSX.writeFile(wb, "riwayatTTM.xlsx");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "riwayatTTM.csv"; // <<<<<< ganti jadi CSV
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
 });
+
 
 // IMPORT JSON
 document.getElementById("importFile").addEventListener("change", e => {
@@ -218,5 +216,6 @@ document.getElementById("importFile").addEventListener("change", e => {
   };
   reader.readAsText(file);
 });
+
 
 
