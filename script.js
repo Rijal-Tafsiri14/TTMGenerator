@@ -165,35 +165,41 @@ function hapusRiwayat(index) {
 }
 // EXPORT CSV
 document.getElementById("exportBtn").addEventListener("click", () => {
-  if (!riwayat || riwayat.length === 0) {
-    alert("Tidak ada data untuk diexport!");
-    return;
-  }
+  try {
+    if (!riwayat || riwayat.length === 0) {
+      alert("Tidak ada data untuk diexport!");
+      return;
+    }
 
-  // buat header
-  let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan\n";
+    // Buat header CSV
+    let csvContent = "No TTM,Divisi,Tanggal,Notes,Nama Barang,Qty,Satuan,Keterangan\n";
 
-  // loop data riwayat
-  riwayat.forEach(r => {
-    r.barangList.forEach(b => {
-      csvContent += `${r.ttmNumber},${r.divisi},${r.date},${r.notes || ""},${b.nama},${b.qty},${b.satuan},${b.ket}\n`;
+    // Loop isi riwayat
+    riwayat.forEach(r => {
+      r.barangList.forEach(b => {
+        csvContent += `"${r.ttmNumber}","${r.divisi}","${r.date}","${r.notes || ""}","${b.nama}",${b.qty},${b.satuan},"${b.ket}"\n`;
+      });
     });
-  });
 
-  // buat file CSV
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
+    // Buat file CSV
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "riwayatTTM.csv"; // <<<<<< ganti jadi CSV
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = "riwayatTTM.csv"; // Excel bisa buka langsung
 
-  URL.revokeObjectURL(url);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Export error:", err);
+    alert("Export gagal, cek console!");
+  }
 });
-
 
 // IMPORT JSON
 document.getElementById("importFile").addEventListener("change", e => {
@@ -216,6 +222,7 @@ document.getElementById("importFile").addEventListener("change", e => {
   };
   reader.readAsText(file);
 });
+
 
 
 
