@@ -164,31 +164,37 @@ function hapusRiwayat(index) {
   }
 }
 // EXPORT JSON
+// EXPORT XLSX
 document.getElementById("exportBtn").addEventListener("click", () => {
-  try {
-    if (!riwayat || riwayat.length === 0) {
-      alert("Tidak ada data untuk diexport!");
-      return;
-    }
-
-    const dataStr = JSON.stringify(riwayat, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = url;
-    a.download = "riwayatTTM.json";
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error("Export error:", err);
-    alert("Export gagal, cek console!");
+  if (!riwayat || riwayat.length === 0) {
+    alert("Tidak ada data untuk diexport!");
+    return;
   }
+
+  // ubah data ke array of objects
+  let data = [];
+  riwayat.forEach(r => {
+    r.barangList.forEach(b => {
+      data.push({
+        No_TTM: r.ttmNumber,
+        Divisi: r.divisi,
+        Tanggal: r.date,
+        Notes: r.notes || "",
+        Nama_Barang: b.nama,
+        Qty: b.qty,
+        Satuan: b.satuan,
+        Keterangan: b.ket
+      });
+    });
+  });
+
+  // buat worksheet
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
+
+  // simpan file
+  XLSX.writeFile(wb, "riwayatTTM.xlsx");
 });
 
 // IMPORT JSON
@@ -212,4 +218,5 @@ document.getElementById("importFile").addEventListener("change", e => {
   };
   reader.readAsText(file);
 });
+
 
