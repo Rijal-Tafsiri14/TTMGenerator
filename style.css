@@ -91,3 +91,9 @@ th, td {
   width: auto;
   object-fit: contain;
 }
+
+@media print {
+  #page-title {
+    display: none;
+  }
+}
