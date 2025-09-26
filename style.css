@@ -94,6 +94,7 @@ th, td {
 
 @media print {
   #page-title {
-    display: none;
+    display: none !important;
   }
 }
+
